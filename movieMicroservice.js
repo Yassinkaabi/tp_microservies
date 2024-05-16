@@ -2,7 +2,8 @@
 const grpc = require('@grpc/grpc-js');
 const mongoose = require('mongoose');
 const protoLoader = require('@grpc/proto-loader');
-const { consumeMessages, sendMessage } = require('./kafkaHelper')
+const { consumeMessages, sendMessage } = require('./kafkaHelper');
+
 // Charger le fichier movie.proto
 const movieProtoPath = 'movie.proto';
 const movieProtoDefinition = protoLoader.loadSync(movieProtoPath, {
@@ -71,8 +72,9 @@ const movieService = {
             description
         });
         const savedMovie = await newMovie.save()
-        await sendMessage('new_movies', { title, description });
+        await sendMessage('movies_topic', savedMovie);
         callback(null, { movie: savedMovie });
+        await consumeMessages('movies_topic', savedMovie);
     },
 };
 
@@ -90,4 +92,3 @@ server.bindAsync(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure(),
         server.start();
     });
 console.log(`Microservice de films en cours d'exécution sur le port ${port}`);
-consumeMessages('new_movies');

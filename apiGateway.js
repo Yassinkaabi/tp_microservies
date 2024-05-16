@@ -88,7 +88,7 @@ app.post('/movies/create', (req, res) => {
         return res.status(400).json({ error: 'Title and description are required' });
     }
 
-    const request = { movie: { title, description } };
+    const request = { title, description };
 
     client.createMovie(request, (err, response) => {
         if (err) {
@@ -132,7 +132,7 @@ app.post('/movies/create', (req, res) => {
         return res.status(400).json({ error: 'Title and description are required' });
     }
 
-    const request = { tvShow: { title, description } };
+    const request = { title, description };
 
     client.createMovie(request, (err, response) => {
         if (err) {

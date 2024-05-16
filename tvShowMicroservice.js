@@ -69,8 +69,9 @@ const tvShowService = {
             description,
         });
         const savedTvShow = await newTvShow.save()
-        await sendMessage('new_tv_shows', { title, description });
+        await sendMessage('tvshows_topic', { title, description });
         callback(null, { tv_show: savedTvShow });
+        await consumeMessages('tvshows_topic', savedTvShow);
     },
 };
 // Créer et démarrer le serveur gRPC

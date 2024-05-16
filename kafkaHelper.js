@@ -12,17 +12,17 @@ const producer = kafka.producer();
 // Fonction pour envoyer un message à un topic Kafka
 const sendMessage = async (topic, message) => {
     try {
-        // Connexion au producteur Kafka 
         await producer.connect();
+        console.log('Producer connected');
 
-        // Envoi du message au topic spécifié
-        await producer.send({ 
+        await producer.send({
             topic,
             messages: [{ value: JSON.stringify(message) }],
         });
 
-        // Déconnexion du producteur Kafka après l'envoi
+        console.log(`Message sent to topic ${topic}:`, message);
         await producer.disconnect();
+        console.log('Producer disconnected');
     } catch (error) {
         console.error('Erreur lors de l\'envoi du message à Kafka:', error);
     }
@@ -30,23 +30,23 @@ const sendMessage = async (topic, message) => {
 
 // Fonction pour consommer les messages d'un topic Kafka
 const consumeMessages = async (topic) => {
-    const consumer = kafka.consumer({ groupId: 'my-group' });
+    try {
+        const consumer = kafka.consumer({ groupId: 'my-group' });
+        await consumer.connect();
+        console.log('Consumer connected');
 
-    // Connecter le consommateur Kafka
-    await consumer.connect();
-
-    // Souscrire au topic spécifié
-    await consumer.subscribe({ topic });
-
-    // Écouter les messages entrants
-    await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-            // Traiter le message reçu
-            console.log({
-                value: message.value.toString(),
-            });
-        },
-    });
+        await consumer.subscribe({ topic });
+        console.log(`Consumer subscribed to topic ${topic}`);
+        await consumer.run({
+            eachMessage: async ({ topic, partition, message }) => {
+                console.log(`Message received from topic ${topic}:`, message.value.toString());
+            },
+        });
+        await consumer.disconnect();
+        console.log('consumer disconnected');
+    } catch (error) {
+        console.error('Erreur lors de la consommation des messages Kafka:', error);
+    }
 };
 
 module.exports = {
